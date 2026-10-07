@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ISAC Login</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body class="login-body">
+
+    <main class="login-shell">
+
+        <section class="login-panel">
+
+            <div class="login-brand">
+
+                <p class="eyebrow">
+                    Intelligent Security Alert & Control
+                </p>
+
+                <h1>
+                    ISAC<br>Dashboard
+                </h1>
+
+                <p>
+                    Secure access portal for the IoT sensor fusion monitoring
+                    system.
+                </p>
+
+            </div>
+
+            <form class="login-form" method="POST">
+
+                <label>
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    name="username"
+                    required
+                >
+
+                <label>
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    required
+                >
+
+                {% if error %}
+                <div class="auth-error">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                {% if notice %}
+                <div class="auth-notice">
+                    {{ notice }}
+                </div>
+                {% endif %}
+
+                <button class="login-button" type="submit">
+                    Login
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

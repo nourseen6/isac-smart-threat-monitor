@@ -1,0 +1,6 @@
+paho-mqtt
+opencv-python-headless
+
+# On Raspberry Pi OS also install:
+#   sudo apt update
+#   sudo apt install -y python3-rpi.gpio python3-picamera2

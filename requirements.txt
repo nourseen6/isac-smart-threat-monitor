@@ -1,0 +1,6 @@
+flask
+paho-mqtt
+firebase-admin
+opencv-python
+numpy
+ultralytics

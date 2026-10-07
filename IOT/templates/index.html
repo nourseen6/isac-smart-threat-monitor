@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISAC Smart Threat Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">AI + IoT Sensor Fusion</p>
+                <h1>ISAC Smart Threat Monitor</h1>
+            </div>
+            <div class="topbar-status">
+                <div class="status-pill">
+                    <span class="status-dot" id="mqttDot"></span>
+                    <span id="mqttStatus">MQTT --</span>
+                </div>
+                <div class="timestamp" id="liveTimestamp">--</div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            <section class="threat-section panel">
+                <div class="section-heading">
+                    <p class="eyebrow">Main Threat Status</p>
+                    <span id="systemState">BOOTING</span>
+                </div>
+                <div class="threat-readout">
+                    <div class="threat-level threat-unknown" id="threatLevel">UNKNOWN</div>
+                    <p id="decisionMessage">Awaiting backend decision</p>
+                </div>
+                <div class="decision-meta">
+                    <span>Final decision</span>
+                    <strong id="fusionDecision">--</strong>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <p class="eyebrow">Sensor Fusion Panel</p>
+                </div>
+                <div class="sensor-grid">
+                    <div class="metric">
+                        <span>PIR status</span>
+                        <strong id="pirStatus">--</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Ultrasonic distance</span>
+                        <strong id="distanceValue">--</strong>
+                    </div>
+                    <div class="metric">
+                        <span>YOLO detection</span>
+                        <strong id="yoloDetection">--</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Fusion decision</span>
+                        <strong id="fusionSummary">--</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <p class="eyebrow">System Health</p>
+                </div>
+                <div class="health-list">
+                    <div class="health-row">
+                        <span><span class="status-dot" id="healthMqttDot"></span>MQTT connected</span>
+                        <strong id="healthMqtt">--</strong>
+                    </div>
+                    <div class="health-row">
+                        <span><span class="status-dot" id="healthPiDot"></span>Raspberry Pi online</span>
+                        <strong id="healthPi">--</strong>
+                    </div>
+                    <div class="health-row">
+                        <span><span class="status-dot" id="healthCameraDot"></span>Camera active</span>
+                        <strong id="healthCamera">--</strong>
+                    </div>
+                    <div class="health-row">
+                        <span><span class="status-dot" id="healthYoloDot"></span>YOLO running</span>
+                        <strong id="healthYolo">--</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="statistics-section">
+                <div class="section-heading">
+                    <p class="eyebrow">Statistics</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-tile">
+                        <span>Total detections</span>
+                        <strong id="totalDetections">0</strong>
+                        <small>Backend decisions</small>
+                    </div>
+                    <div class="stat-tile">
+                        <span>False alarms</span>
+                        <strong id="falseAlarms">0</strong>
+                        <small>From backend messages</small>
+                    </div>
+                    <div class="stat-tile">
+                        <span>System uptime</span>
+                        <strong id="systemUptime">0s</strong>
+                        <small>Dashboard runtime</small>
+                    </div>
+                    <div class="stat-tile">
+                        <span>Detection count</span>
+                        <strong id="detectionCount">0</strong>
+                        <small>YOLO person events</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel table-panel">
+                <div class="section-heading">
+                    <p class="eyebrow">Live Alerts Table</p>
+                    <div class="export-group">
+                        <button type="button" data-export="/export-csv?dataset=alerts">Alerts CSV</button>
+                        <button type="button" data-export="/export-excel?dataset=alerts">Alerts Excel</button>
+                        <button type="button" data-export="/export-csv?dataset=logs">Logs CSV</button>
+                        <button type="button" data-export="/export-excel?dataset=logs">Logs Excel</button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>PIR</th>
+                                <th>Distance</th>
+                                <th>YOLO</th>
+                                <th>Threat</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTable">
+                            <tr>
+                                <td colspan="6">Awaiting backend alerts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel log-panel">
+                <div class="section-heading">
+                    <p class="eyebrow">Event Log</p>
+                </div>
+                <div class="event-log" id="eventLog">
+                    <div class="empty-state">Awaiting backend events</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
