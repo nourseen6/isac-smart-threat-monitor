@@ -1,47 +1,48 @@
 # ISAC Smart Threat Monitor
 
-نظام مراقبة ذكي (AIoT) لمقرر Internet of Things (CCS329) بجامعة الريادة.
-الـ Raspberry Pi يجمع حركة PIR ومسافة الالتراسونيك وصورة الكاميرا، واللابتوب يشغّل YOLOv8 ولوحة المراقبة.
+An AIoT monitoring system for the Internet of Things course (CCS329) at AlRyada University. The Raspberry Pi collects PIR motion, ultrasonic distance, and camera frames. The laptop runs YOLOv8 inference and the monitoring dashboard.
 
-## الجهاز
+## Hardware
 
-![التجميع الفعلي: Raspberry Pi 4 و PIR و Ultrasonic والكاميرا](docs/figures/09-hardware-assembly.jpeg)
+![Assembled node: Raspberry Pi 4, PIR, ultrasonic sensor, and camera](docs/figures/09-hardware-assembly.jpeg)
 
-| المكوّن | التوصيل | الوظيفة |
+| Component | Wiring | Role |
 | --- | --- | --- |
-| Raspberry Pi 4 Model B (4GB) | Ethernet إلى الشبكة المحلية | عقدة الحساسات |
-| HC-SR501 PIR | Signal → GPIO 17 (pin 11)، VCC → 5V (pin 2)، GND → pin 6 | كشف الحركة |
-| HC-SR04 Ultrasonic | TRIG → GPIO 23 (pin 16)، ECHO → GPIO 24 (pin 18) | قياس المسافة |
-| Raspberry Pi Camera Module v2 | منفذ CSI | صورة 640×480 لـ YOLOv8 |
-| Breadboard + jumper wires | — | توصيل GPIO |
+| Raspberry Pi 4 Model B (4GB) | Ethernet to the local network | Sensor node |
+| HC-SR501 PIR | Signal → GPIO 17 (pin 11), VCC → 5V (pin 2), GND → pin 6 | Motion detection |
+| HC-SR04 ultrasonic | TRIG → GPIO 23 (pin 16), ECHO → GPIO 24 (pin 18) | Distance measurement |
+| Raspberry Pi Camera Module v2 | CSI port | 640×480 frames for YOLOv8 |
+| Breadboard and jumper wires | — | GPIO wiring |
 
-خرج ECHO في HC-SR04 جهده 5V، ودخل الـ GPIO يتحمل 3.3V. التقرير يستخدم مقسم جهد: مقاومة 1 kΩ على التوالي مع ECHO، ومقاومة 2 kΩ من GPIO 24 إلى الأرض. TRIG يشتغل مباشرة من 3.3V.
+The HC-SR04 ECHO pin outputs 5V, while a Raspberry Pi GPIO input is rated for 3.3V. The report uses a voltage divider: a 1 kΩ resistor in series with ECHO, and a 2 kΩ resistor from GPIO 24 to ground. TRIG is driven directly by the 3.3V GPIO output.
 
-مخطط التوصيل وباقي المعمارية موجودين في الصورة دي:
+The wiring diagram and the rest of the architecture are in this figure:
 
-![معمارية النظام ومخطط توصيل الـ GPIO](docs/figures/04-system-architecture.jpeg)
+![System architecture and GPIO wiring](docs/figures/04-system-architecture.jpeg)
 
-صور تانية من التقرير:
+Other figures from the report:
 
 - [Use case](docs/figures/01-use-case-diagram.jpeg)
 - [Sequence diagram](docs/figures/02-sequence-diagram.jpeg)
 - [DFD](docs/figures/03-dfd-level1.jpeg)
 - [Login](docs/figures/05-dashboard-login.jpeg)
 - [HIGH threat](docs/figures/06-dashboard-high-threat.jpeg)
-- [UNKNOWN أثناء الإقلاع](docs/figures/07-dashboard-unknown.jpeg)
+- [UNKNOWN during startup](docs/figures/07-dashboard-unknown.jpeg)
 - [Statistics](docs/figures/08-dashboard-statistics.jpeg)
 
-## هيكل المشروع
+## Project layout
 
 ```
-IOT/                 لوحة Flask + دمج الحساسات + YOLOv8 (على اللابتوب)
-raspberry_pi/        كود الـ Raspberry Pi (PIR + ultrasonic + camera)
-docs/figures/        صور الجهاز والمخططات من التقرير
+IOT/                 Flask dashboard, sensor fusion, and YOLOv8 (laptop)
+raspberry_pi/        Raspberry Pi code (PIR, ultrasonic, camera)
+docs/figures/        Hardware photos and diagrams from the report
 ```
 
-## التشغيل
+## How to run
 
-على اللابتوب، البروكر على المنفذ 1883. عنوانه الافتراضي في كود اللابتوب هو `Nourseen.local`، وعلى الـ Pi هو `192.168.1.100` زي التقرير. غيّريه بمتغير `MQTT_BROKER` لو الشبكة مختلفة.
+The MQTT broker listens on port 1883. Laptop scripts default to `Nourseen.local`. The Raspberry Pi script defaults to `192.168.1.100`, as in the report. Set `MQTT_BROKER` if the network address is different.
+
+On the laptop, open three terminals:
 
 ```powershell
 cd IOT
@@ -51,9 +52,9 @@ python backend.py
 python app.py
 ```
 
-اللاب يفتح على `http://localhost:5000`.
+The dashboard is at `http://localhost:5000`.
 
-على الـ Raspberry Pi:
+On the Raspberry Pi:
 
 ```bash
 sudo apt update
@@ -64,22 +65,22 @@ chmod +x run_all.sh
 ./run_all.sh
 ```
 
-`sensor_node.py` ينشر:
+`sensor_node.py` publishes:
 
-| Topic | المحتوى |
+| Topic | Payload |
 | --- | --- |
-| `isac/pir` | `0` أو `1` |
-| `isac/distance` | المسافة بالسنتيمتر |
-| `camera/frame` و `isa/camera/frame` | إطار JPEG مشفّر base64 |
-| `yolo/detection` | `person` أو `none` (من `detect.py` على اللابتوب) |
+| `isac/pir` | `0` or `1` |
+| `isac/distance` | Distance in centimetres |
+| `camera/frame` and `isa/camera/frame` | Base64-encoded JPEG frame |
+| `yolo/detection` | `person` or `none` (published by `detect.py` on the laptop) |
 
 ## Firebase
 
-التسجيل السحابي اختياري. حطي ملف مفتاح الخدمة داخل `IOT/` أو حددي مساره:
+Cloud logging is optional. Place the service-account file in `IOT/`, or set its path:
 
 ```powershell
 $env:FIREBASE_CREDENTIALS = "C:\path\to\firebase-adminsdk.json"
 $env:FIREBASE_DATABASE_URL = "https://isac-7e65e-default-rtdb.firebaseio.com/"
 ```
 
-ملف المفتاح مش موجود في الريبو.
+The service-account key is not in this repository.
